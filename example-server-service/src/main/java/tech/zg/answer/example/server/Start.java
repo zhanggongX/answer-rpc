@@ -7,8 +7,7 @@ public class Start {
 
     public static void main(String[] args) throws Exception {
         AnswerConfig answerConfig = new AnswerConfig();
-        answerConfig.setAnswerAddress("localhost");
-        answerConfig.setAnswerAddressPort(8001);
+        answerConfig.setAnswerPort(8001);
         answerConfig.setServicePackage("tech.zg.answer.example.server.service");
 
         AnswerServer answerServer = AnswerServer.open(answerConfig);

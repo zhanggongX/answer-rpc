@@ -7,18 +7,23 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.zg.answer.common.codec.AnswerDecoder;
-import tech.zg.answer.common.codec.AnswerEncoder;
 import tech.zg.answer.common.bean.AnswerRequest;
 import tech.zg.answer.common.bean.AnswerResponse;
+import tech.zg.answer.common.codec.AnswerDecoder;
+import tech.zg.answer.common.codec.AnswerEncoder;
+import tech.zg.answer.common.handler.BusinessHandler;
+
+import java.util.Map;
 
 public class NettyServer {
 
     private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
     private int port;
+    private Map<String, Object> serviceMap;
 
-    public NettyServer(int port) {
+    public NettyServer(int port, Map<String, Object> serviceMap) {
         this.port = port;
+        this.serviceMap = serviceMap;
     }
 
     public void run() throws InterruptedException {
@@ -39,7 +44,7 @@ public class NettyServer {
 
                             socketChannel.pipeline().addLast(new AnswerDecoder(AnswerRequest.class));
                             socketChannel.pipeline().addLast(new AnswerEncoder(AnswerResponse.class));
-                            socketChannel.pipeline().addLast(null);
+                            socketChannel.pipeline().addLast(new BusinessHandler(serviceMap));
                         }
                     });
 

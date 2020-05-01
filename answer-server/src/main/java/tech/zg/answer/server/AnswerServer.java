@@ -2,8 +2,8 @@ package tech.zg.answer.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.zg.answer.common.constant.AnswerConstant;
 import tech.zg.answer.common.annotation.AnswerService;
+import tech.zg.answer.common.constant.AnswerConstant;
 import tech.zg.answer.common.util.AnnotationUtil;
 import tech.zg.answer.common.util.ClassUtil;
 import tech.zg.answer.server.config.AnswerConfig;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class AnswerServer {
 
     private AnswerConfig answerConfig;
-    private Map<String, Object> handlerMap = new HashMap<>();
+    private Map<String, Object> serviceMap = new HashMap<>();
 
     private static final Logger log = LoggerFactory.getLogger(AnswerServer.class);
 
@@ -62,12 +62,12 @@ public class AnswerServer {
                 Class clazz = classes.get(i);
                 Object object = clazz.newInstance();
                 String interName = object.getClass().getAnnotation(AnswerService.class).value().getName();
-                handlerMap.put(interName, object);
+                serviceMap.put(interName, object);
             }
         }
 
         // 启动服务
-        NettyServer nettyServer = new NettyServer(this.getAnswerConfig().getAnswerPort());
+        NettyServer nettyServer = new NettyServer(this.getAnswerConfig().getAnswerPort(), serviceMap);
         nettyServer.run();
     }
 }
