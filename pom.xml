@@ -15,6 +15,7 @@
         <module>answer-server</module>
         <module>answer-client</module>
         <module>answer-registry</module>
+        <module>example</module>
     </modules>
 
 
@@ -29,8 +30,6 @@
         <!-- maven 版本 -->
         <maven.deploy.version>2.7</maven.deploy.version>
         <maven.sourcce.version>2.2.1</maven.sourcce.version>
-        <!-- spring framework -->
-        <spring.version>4.3.11.RELEASE</spring.version>
         <!-- commons pool2 -->
         <commons-pool2.version>2.4.2</commons-pool2.version>
         <!-- alibaba fastjson -->
@@ -49,61 +48,4 @@
         <logback.version>1.1.11</logback.version>
         <cglib.version>3.2.4</cglib.version>
     </properties>
-    <!--项目依赖管理-->
-    <dependencyManagement>
-        <dependencies>
-            <!--springframework dependency-->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>${jackson.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-pool2</artifactId>
-                <version>${commons-pool2.version}</version>
-            </dependency>
-            <!-- alibaba -->
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>fastjson</artifactId>
-                <version>${fastjson.version}</version>
-            </dependency>
-            <!-- Guava -->
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-            <!--commons-lang -->
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commons-lang.version}</version>
-            </dependency>
-            <!--pinyin4j -->
-            <dependency>
-                <groupId>com.belerweb</groupId>
-                <artifactId>pinyin4j</artifactId>
-                <version>${pinyin4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib</artifactId>
-                <version>${cglib.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

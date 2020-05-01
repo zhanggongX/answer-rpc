@@ -24,4 +24,7 @@ public class AnswerConstant {
      * 数据节点
      */
     public static final String ZK_DATA_PATH = ZK_REGISTRY_PATH + "/AnswerData";
+
+    public static final String DEFAULT_SERVER_ADDRESS = "localhost";
+    public static final int DEFAULT_SERVER_PORT = 8000;
 }
