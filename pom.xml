@@ -15,7 +15,9 @@
         <module>answer-server</module>
         <module>answer-client</module>
         <module>answer-registry</module>
-        <module>example</module>
+        <module>example-server-api</module>
+        <module>example-server-service</module>
+        <module>example-app</module>
     </modules>
 
 

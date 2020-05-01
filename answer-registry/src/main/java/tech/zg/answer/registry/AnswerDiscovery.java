@@ -5,7 +5,7 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.zg.answer.common.AnswerConstant;
+import tech.zg.answer.common.constant.AnswerConstant;
 
 import java.util.ArrayList;
 import java.util.List;

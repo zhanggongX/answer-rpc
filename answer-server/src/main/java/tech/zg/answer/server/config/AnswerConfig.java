@@ -3,13 +3,9 @@ package tech.zg.answer.server.config;
 public class AnswerConfig {
 
     /**
-     * answer 服务的地址
-     */
-    private String answerAddress;
-    /**
      * answer 服务的端口
      */
-    private int answerAddressPort;
+    private int answerPort;
     /**
      * zookeeper 地址，服务注册使用
      */
@@ -20,20 +16,12 @@ public class AnswerConfig {
      */
     private String servicePackage;
 
-    public String getAnswerAddress() {
-        return answerAddress;
+    public int getAnswerPort() {
+        return answerPort;
     }
 
-    public void setAnswerAddress(String answerAddress) {
-        this.answerAddress = answerAddress;
-    }
-
-    public int getAnswerAddressPort() {
-        return answerAddressPort;
-    }
-
-    public void setAnswerAddressPort(int answerAddressPort) {
-        this.answerAddressPort = answerAddressPort;
+    public void setAnswerPort(int answerPort) {
+        this.answerPort = answerPort;
     }
 
     public String getRegistryAddress() {
