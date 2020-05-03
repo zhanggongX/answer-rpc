@@ -5,13 +5,14 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.zg.answer.common.bean.AnswerRequest;
 import tech.zg.answer.common.bean.AnswerResponse;
 import tech.zg.answer.common.codec.AnswerDecoder;
 import tech.zg.answer.common.codec.AnswerEncoder;
-import tech.zg.answer.common.handler.BusinessHandler;
+import tech.zg.answer.server.handler.AnswerServerHandler;
 
 import java.util.Map;
 
@@ -41,10 +42,11 @@ public class NettyServer {
                         // 这里每次连接都能获取到客户端的 channel， 这里就可以给用户一个标记和 channel 做一个标记，可以用来给用户推送消息
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-
-                            socketChannel.pipeline().addLast(new AnswerDecoder(AnswerRequest.class));
-                            socketChannel.pipeline().addLast(new AnswerEncoder(AnswerResponse.class));
-                            socketChannel.pipeline().addLast(new BusinessHandler(serviceMap));
+                            socketChannel.pipeline()
+                                    .addLast(new LoggingHandler())
+                                    .addLast(new AnswerDecoder(AnswerRequest.class))
+                                    .addLast(new AnswerEncoder(AnswerResponse.class))
+                                    .addLast(new AnswerServerHandler(serviceMap));
                         }
                     });
 

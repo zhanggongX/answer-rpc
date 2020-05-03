@@ -1,0 +1,34 @@
+spring:
+  #  thymeleaf:
+  #    cache: false
+  #    prefix: classpath:/templates/
+  #    suffix: .html
+  #    encoding: UTF-8
+  #    servlet:
+  #      content-type: text/html
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  resources:
+    static-locations: classpath:/static/
+
+#Tomcat
+server:
+  servlet:
+    context-path: /
+  port: 9999
+  tomcat:
+    max-threads: 10
+    min-spare-threads: 10
+
+# spring-security enable
+#security:
+#  basic:
+#    enabled: false
+
+management:
+  context-path: /
+
+answer:
+  serverAddress: 127.0.0.1
+  serverPort: 8888

@@ -71,7 +71,8 @@ public class AnswerSerializationUtil {
         LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
             Schema<T> schema = getSchema(cls);
-            return ProtostuffIOUtil.toByteArray(obj, schema, buffer);//序列化
+            //序列化
+            return ProtostuffIOUtil.toByteArray(obj, schema, buffer);
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
         } finally {
@@ -97,8 +98,10 @@ public class AnswerSerializationUtil {
              * 如果一个类没有参数为空的构造方法时候，那么你直接调用newInstance方法试图得到一个实例对象的时候是会抛出异常的
         	 * 通过ObjenesisStd可以完美的避开这个问题
         	 */
-            T message = (T) objenesis.newInstance(cls);//实例化
-            Schema<T> schema = getSchema(cls);//获取类的schema
+            //实例化
+            T message = (T) objenesis.newInstance(cls);
+            //获取类的schema
+            Schema<T> schema = getSchema(cls);
             ProtostuffIOUtil.mergeFrom(data, message, schema);
             return message;
         } catch (Exception e) {
