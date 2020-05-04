@@ -14,18 +14,14 @@ public class AnswerClientProxy {
     private Integer serverPort;
     private AnswerNettyClient answerNettyClient;
 
-    public AnswerClientProxy(String serverAddress) throws InterruptedException {
+    public AnswerClientProxy(String serverAddress) {
         this.serverAddress = serverAddress;
         this.serverPort = 8888;
-        answerNettyClient = new AnswerNettyClient(serverAddress, serverPort);
-        answerNettyClient.connect();
     }
 
-    public AnswerClientProxy(String serverAddress, Integer serverPort) throws InterruptedException {
+    public AnswerClientProxy(String serverAddress, Integer serverPort) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
-        answerNettyClient = new AnswerNettyClient(serverAddress, serverPort);
-        answerNettyClient.connect();
     }
 
     @SuppressWarnings("unchecked")
@@ -41,6 +37,7 @@ public class AnswerClientProxy {
                 request.setParameterTypes(method.getParameterTypes());
                 request.setParameters(args);
 
+                answerNettyClient = new AnswerNettyClient(serverAddress, serverPort);
                 AnswerResponse response = answerNettyClient.send(request);
                 if (response.isError()) {
                     throw response.getError();

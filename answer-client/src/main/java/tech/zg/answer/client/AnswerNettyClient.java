@@ -1,45 +1,32 @@
 package tech.zg.answer.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.zg.answer.client.handler.ClientHandler;
 import tech.zg.answer.common.bean.AnswerRequest;
 import tech.zg.answer.common.bean.AnswerResponse;
 import tech.zg.answer.common.codec.AnswerDecoder;
 import tech.zg.answer.common.codec.AnswerEncoder;
 
-import java.util.concurrent.TimeoutException;
-
-public class AnswerNettyClient {
+public class AnswerNettyClient extends SimpleChannelInboundHandler<AnswerResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(AnswerNettyClient.class);
 
     private String host;
     private Integer port;
-    private Channel channel;
+    private Object lock = new Object();
+    private AnswerResponse answerResponse;
 
     public AnswerNettyClient(String host, Integer port) {
         this.host = host;
         this.port = port;
     }
 
-    public AnswerResponse send(AnswerRequest request) throws TimeoutException {
-        if (channel == null) {
-            throw new RuntimeException("服务未连接");
-        }
-        channel.writeAndFlush(request);
-        return AnswerClientResult.getResponse(request.getRequestId(), 3000);
-    }
-
-    public void connect() throws InterruptedException {
+    public AnswerResponse send(AnswerRequest request) throws InterruptedException {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
 
         try {
@@ -48,7 +35,7 @@ public class AnswerNettyClient {
             bootstrap.group(eventLoopGroup)
                     // 配置客户端通道channel 实现类
                     .channel(NioSocketChannel.class)
-                    .option(ChannelOption.SO_KEEPALIVE, true)
+                    //.option(ChannelOption.SO_KEEPALIVE, true)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
@@ -56,14 +43,41 @@ public class AnswerNettyClient {
                             socketChannel.pipeline()
                                     .addLast(new AnswerEncoder(AnswerRequest.class))
                                     .addLast(new AnswerDecoder(AnswerResponse.class))
-                                    .addLast(new ClientHandler());
+                                    .addLast(AnswerNettyClient.this);
                         }
                     });
             log.info("客户端初始化完成");
-            channel = bootstrap.connect(host, port).sync().channel();
+            ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
+            Channel channel = channelFuture.channel();
+            channel.writeAndFlush(request).sync();
+
+            synchronized (lock) {
+                lock.wait();
+            }
+            if (answerResponse != null) {
+                channelFuture.channel().closeFuture().sync();
+                return answerResponse;
+            }
+
             log.info("客户端启动成功");
         } finally {
             eventLoopGroup.shutdownGracefully();
         }
+
+        return null;
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, AnswerResponse answerResponse) throws Exception {
+        this.answerResponse = answerResponse;
+        synchronized (lock) {
+            lock.notifyAll();
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.info("异常-{}", cause.getMessage());
+        ctx.close();
     }
 }
