@@ -15,7 +15,7 @@ public class Config {
     private String serverPort;
 
     @Bean
-    public AnswerClientProxy anwerClientProxy() {
+    public AnswerClientProxy anwerClientProxy() throws InterruptedException {
         return new AnswerClientProxy(serverAddress, Integer.valueOf(serverPort));
     }
 }

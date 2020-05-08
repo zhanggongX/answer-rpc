@@ -33,7 +33,8 @@ public class AnswerServerHandler extends SimpleChannelInboundHandler<AnswerReque
         } catch (Exception e) {
             answerResponse.setError(e);
         }
-        channelHandlerContext.writeAndFlush(answerResponse).addListener(ChannelFutureListener.CLOSE);
+        //channelHandlerContext.writeAndFlush(answerResponse).addListener(ChannelFutureListener.CLOSE);
+        channelHandlerContext.channel().writeAndFlush(answerResponse);
     }
 
     @Override

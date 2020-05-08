@@ -7,35 +7,34 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.zg.answer.client.cache.AnswerClientRequestCache;
+import tech.zg.answer.client.handler.ServerClientHandler;
 import tech.zg.answer.common.bean.AnswerRequest;
 import tech.zg.answer.common.bean.AnswerResponse;
 import tech.zg.answer.common.codec.AnswerDecoder;
 import tech.zg.answer.common.codec.AnswerEncoder;
 
-public class AnswerNettyClient extends SimpleChannelInboundHandler<AnswerResponse> {
+public class AnswerNettyThread implements Runnable {
 
-    private static final Logger log = LoggerFactory.getLogger(AnswerNettyClient.class);
-
+    private static final Logger log = LoggerFactory.getLogger(AnswerNettyThread.class);
     private String host;
-    private Integer port;
-    private Object lock = new Object();
-    private AnswerResponse answerResponse;
+    private int port;
 
-    public AnswerNettyClient(String host, Integer port) {
+    public AnswerNettyThread(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
-    public AnswerResponse send(AnswerRequest request) throws InterruptedException {
+    @Override
+    public void run() {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
-
         try {
             Bootstrap bootstrap = new Bootstrap();
             // 配置线程组
             bootstrap.group(eventLoopGroup)
                     // 配置客户端通道channel 实现类
                     .channel(NioSocketChannel.class)
-                    //.option(ChannelOption.SO_KEEPALIVE, true)
+                    .option(ChannelOption.SO_KEEPALIVE, true)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
@@ -43,41 +42,38 @@ public class AnswerNettyClient extends SimpleChannelInboundHandler<AnswerRespons
                             socketChannel.pipeline()
                                     .addLast(new AnswerEncoder(AnswerRequest.class))
                                     .addLast(new AnswerDecoder(AnswerResponse.class))
-                                    .addLast(AnswerNettyClient.this);
+                                    .addLast(new ServerClientHandler());
                         }
                     });
             log.info("客户端初始化完成");
+
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
-            Channel channel = channelFuture.channel();
-            channel.writeAndFlush(request).sync();
-
-            synchronized (lock) {
-                lock.wait();
-            }
-            if (answerResponse != null) {
-                channelFuture.channel().closeFuture().sync();
-                return answerResponse;
-            }
-
             log.info("客户端启动成功");
+
+            channelFuture.channel().closeFuture().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    log.info("客户端关闭");
+                }
+            });
+
+            for (; ; ) {
+                Thread.sleep(100);
+                AnswerRequest request = null;
+                try {
+                    request = AnswerClientRequestCache.pollRequest();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (request != null) {
+                    channelFuture.channel().writeAndFlush(request);
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            eventLoopGroup.shutdownGracefully();
         } finally {
             eventLoopGroup.shutdownGracefully();
         }
-
-        return null;
-    }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, AnswerResponse answerResponse) throws Exception {
-        this.answerResponse = answerResponse;
-        synchronized (lock) {
-            lock.notifyAll();
-        }
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.info("异常-{}", cause.getMessage());
-        ctx.close();
     }
 }

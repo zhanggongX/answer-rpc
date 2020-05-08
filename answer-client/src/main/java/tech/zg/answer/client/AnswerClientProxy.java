@@ -1,5 +1,6 @@
 package tech.zg.answer.client;
 
+import tech.zg.answer.client.thread.SingleThreadPool;
 import tech.zg.answer.common.bean.AnswerRequest;
 import tech.zg.answer.common.bean.AnswerResponse;
 
@@ -10,18 +11,9 @@ import java.util.UUID;
 
 public class AnswerClientProxy {
 
-    private String serverAddress;
-    private Integer serverPort;
-    private AnswerNettyClient answerNettyClient;
-
-    public AnswerClientProxy(String serverAddress) {
-        this.serverAddress = serverAddress;
-        this.serverPort = 8888;
-    }
-
-    public AnswerClientProxy(String serverAddress, Integer serverPort) {
-        this.serverAddress = serverAddress;
-        this.serverPort = serverPort;
+    public AnswerClientProxy(String serverAddress, Integer serverPort) throws InterruptedException {
+        // 启动netty客户端线程
+        SingleThreadPool.SINGLE_THREAD_POOL_EXECUTOR.execute(new AnswerNettyThread(serverAddress, serverPort));
     }
 
     @SuppressWarnings("unchecked")
@@ -37,8 +29,7 @@ public class AnswerClientProxy {
                 request.setParameterTypes(method.getParameterTypes());
                 request.setParameters(args);
 
-                answerNettyClient = new AnswerNettyClient(serverAddress, serverPort);
-                AnswerResponse response = answerNettyClient.send(request);
+                AnswerResponse response = AnswerClient.send(request);
                 if (response.isError()) {
                     throw response.getError();
                 } else {
